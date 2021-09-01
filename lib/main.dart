@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:painter_test/ink_painter.dart';
 import 'package:provider/provider.dart';
@@ -25,6 +23,8 @@ class ExamplePage extends StatefulWidget {
 }
 
 class _ExamplePageState extends State<ExamplePage> {
+  String offsetText = "";
+
 
   DigitalInkRecognitionState get state => Provider.of(context, listen: false);
   final paddingValue = 8.0;
@@ -45,7 +45,10 @@ class _ExamplePageState extends State<ExamplePage> {
   Future<void> _actionMove(Offset point) async {
     var x = point.dx.toInt();
     var y = point.dy.toInt();
-    print("x: $x, y: $y");
+    offsetText = "x: $x, y: $y";
+    setState(() {
+
+    });
     state.writePoint(point);
   }
 
@@ -61,25 +64,42 @@ class _ExamplePageState extends State<ExamplePage> {
     final h = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      body: SafeArea(
-        child: Builder(
-          builder: (_) {
-            _init();
-            return GestureDetector(
-              onScaleStart: (details) async => await _actionDown(details.localFocalPoint),
-              onScaleUpdate: (details) async => await _actionMove(details.localFocalPoint),
-              onScaleEnd: (details) async => await _actionUp(),
-              child: Consumer<DigitalInkRecognitionState>(
-                builder: (_, state, __) => CustomPaint(
-                  painter: DigitalInkPainter(writings: state.writings),
-                  child: Container(
-                    width: w - paddingValue*2,
-                    height: h - paddingValue*2,
-                  ),
+      body: Center(
+        child: Container(
+          width: w - paddingValue*2,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Builder(
+                builder: (_) {
+                  _init();
+                  return GestureDetector(
+                    onScaleStart: (details) async => await _actionDown(details.localFocalPoint),
+                    onScaleUpdate: (details) async => await _actionMove(details.localFocalPoint),
+                    onScaleEnd: (details) async => await _actionUp(),
+                    child: Consumer<DigitalInkRecognitionState>(
+                      builder: (_, state, __) => CustomPaint(
+                        painter: DigitalInkPainter(writings: state.writings),
+                        child: Container(
+                          width: w - paddingValue*2,
+                          height: h - paddingValue*2 - 100,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              Container(
+                child: Center(
+                  child: Text(offsetText),
                 ),
               ),
-            );
-          },
+              ElevatedButton(onPressed: (){
+                state.reset();
+              }, child: Text("clear")),
+            ],
+          ),
         ),
       ),
     );
