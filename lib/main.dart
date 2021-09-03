@@ -23,11 +23,13 @@ class ExamplePage extends StatefulWidget {
 }
 
 class _ExamplePageState extends State<ExamplePage> {
-  String offsetText = "";
-
 
   DigitalInkRecognitionState get state => Provider.of(context, listen: false);
   final paddingValue = 8.0;
+  String offsetText = "";
+  var objectList = [];
+  var xList = [];
+  var yList = [];
 
   @override
   void initState() {
@@ -39,6 +41,8 @@ class _ExamplePageState extends State<ExamplePage> {
     var y = point.dy.toInt();
     print("Scale Start");
     print("x: $x, y: $y");
+    xList.add(x);
+    yList.add(y);
     state.startWriting(point);
   }
 
@@ -46,6 +50,8 @@ class _ExamplePageState extends State<ExamplePage> {
     var x = point.dx.toInt();
     var y = point.dy.toInt();
     offsetText = "x: $x, y: $y";
+    xList.add(x);
+    yList.add(y);
     setState(() {
 
     });
@@ -53,7 +59,21 @@ class _ExamplePageState extends State<ExamplePage> {
   }
 
   Future<void> _actionUp() async {
+    var tempX = [];
+    var tempY = [];
+    for (int i = 0; i < xList.length; i++) {
+      tempX.add(xList[i]);
+      tempY.add(yList[i]);
+    }
+    objectList.add({
+      "x": tempX,
+      "y": tempY,
+    });
+    xList.clear();
+    yList.clear();
     print("Scale End");
+    print(objectList);
+    // TODO STT 좌표 전달 및 결과 받기
     state.stopWriting();
   }
 
